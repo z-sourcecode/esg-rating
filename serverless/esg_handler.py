@@ -264,13 +264,15 @@ def esg_rating(event, context):
             # logger.info(county_indicators)
             esg_county = ESGCounty(geoID=county,indicators=county_indicators)
             esg_counties.append(esg_county)
-        logger.info(len(esg_counties))
         
         argE =  ESGArgument(ESGType.ENVIRONMENTAL,esg_counties, env_indicators_weightages)
         argS =  ESGArgument(ESGType.SOCIAL,esg_counties, soc_indicators_weightages)
         argG =  ESGArgument(ESGType.GOVERNANCE,esg_counties, gov_indicators_weightages)
-        message = ESGRating(argE, argS, argG, esg_weightages)
+        result = ESGRating(argE, argS, argG, esg_weightages)
         
+        message = '$$$'.join(str(item) for item in result)
+        # //print(message)
+        message_code = 1
     except Exception as e:
         print(e)
         logger.error(e)

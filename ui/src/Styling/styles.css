@@ -1,0 +1,17 @@
+.row+.row {
+  margin-top: 1rem;
+}
+
+.mainBackground {
+  background-color:lightgrey;
+}
+
+#spinner {
+  top: 50%;
+  left: 50%;
+  width: 5em;
+  height: 5em;
+  margin-top: -3em;
+  margin-left: -3em;
+  position: fixed;
+}

@@ -44,15 +44,19 @@ def CalculateESG(source:ESGArgument):
     return total_counties_result
 
 def ESGRating(environmental:ESGArgument, social:ESGArgument, governance:ESGArgument, esg_weightages:dict):
-    print("Calculating ESG Rating")
-    print("Calculate environmental...")
+    results = []
+    results.append("Calculating ESG Rating")
+    results.append("Calculate environmental...")
     environmental_score = CalculateESG(environmental)
-    print("Calculate Social...")
+    results.append(environmental_score)
+    results.append("Calculate Social...")
     social_score = CalculateESG(social)
-    print("Calculate governance...")
+    results.append(social_score)
+    results.append("Calculate governance...")
     governance_score = CalculateESG(governance)
-    print("environmental score: {0}, social score: {1}, governance score: {2}", environmental_score, social_score, governance_score)
+    results.append(governance_score)
+    results.append("environmental score: {0}, social score: {1}, governance score: {2}".format(environmental_score, social_score, governance_score))
     esg_rating = float(esg_weightages["environmental"])*environmental_score + float(esg_weightages["social"])*social_score + float(esg_weightages["governance"])*governance_score
-    print("FINAL ESG Result: {0}".format(esg_rating))
-    return esg_rating
+    results.append("FINAL ESG Result: {0}".format(esg_rating))
+    return results
 

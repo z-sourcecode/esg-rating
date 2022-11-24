@@ -149,6 +149,7 @@ plugins:
 custom:
   serverless-offline:
     noPrependStageInUrl: true
+    httpPort: 4000
   demographicsTableName: demographics
   raceTableName: race
   droughtTableName: drought
