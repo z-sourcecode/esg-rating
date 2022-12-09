@@ -16,3 +16,11 @@ export const scan_table = (params) => {
 export const esg_rating = (params) => {
     return api.get_resource('esg','POST',params,'')
   } 
+
+export const get_muni_data  = (params) => {
+    return api.get_resource('get_muni_data','POST',params,'')
+  } 
+
+export const get_rating_by_security  = (params) => {
+  return api.get_resource('get_rating_by_security','POST',params,'')
+} 

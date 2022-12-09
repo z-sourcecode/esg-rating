@@ -69,6 +69,46 @@ def get_rating_by_security(event, context):
     try:
         fromJSON = json.loads(event['body'])
         logger.info(fromJSON)
+        if "cusip" in fromJSON:
+            cusip = fromJSON["cusip"]
+            dynamodb = DynamoDBHandler()
+            cusips = dynamodb.get_config("configurations","cusips")
+            counties="County not found."
+            for c in cusips:
+                if c["cusip"] == cusip:
+                    print("Matched Cusip: {0}".format(c["name"]))
+                    counties = c["geoIDs"]
+            if counties=="County not found.":
+                raise Exception("County not found error")
+            
+            if "esg_weightages" in fromJSON:
+                esg_weightages = fromJSON["esg_weightages"]
+            else:
+                esg_weightages = dynamodb.get_config("configurations", "esg_weightages")
+            logger.info(esg_weightages)
+            env_indicators_weightages = dynamodb.get_config("configurations","env_indicators_weightages")
+            soc_indicators_weightages = dynamodb.get_config("configurations","soc_indicators_weightages")
+            gov_indicators_weightages = dynamodb.get_config("configurations","gov_indicators_weightages")
+       
+            esg_counties = []
+            for county in counties:
+                county_indicators = get_county_indicator(county)
+                # logger.info(county_indicators)
+                esg_county = ESGCounty(geoID=county,indicators=county_indicators)
+                esg_counties.append(esg_county)
+        
+            argE =  ESGArgument(ESGType.ENVIRONMENTAL,esg_counties, env_indicators_weightages)
+            argS =  ESGArgument(ESGType.SOCIAL,esg_counties, soc_indicators_weightages)
+            argG =  ESGArgument(ESGType.GOVERNANCE,esg_counties, gov_indicators_weightages)
+            result = ESGRating(argE, argS, argG, esg_weightages)
+        
+            message = '$$$'.join(str(item) for item in result)
+            # //print(message)
+            message_code = 1       
+        else:
+            message_code= -1
+            message="Incorrect Message request"
+        
     except Exception as e:
         print(e)
         logger.error(e)
@@ -83,7 +123,7 @@ def get_rating_by_security(event, context):
     response = {
         "statusCode": 200,
         "body": json.dumps(body, indent=4, cls=ObjectEncoder),
-        "headers" : cors_headers()
+        "headers" : cors_headers(event, context)
     }
  
     logger.debug("End - get_rating_by_params()")
@@ -97,6 +137,12 @@ def get_muni_data(event, context):
     try:
         fromJSON = json.loads(event['body'])
         logger.info(fromJSON)
+        if "county" in fromJSON:
+            county = fromJSON["county"]
+        else:
+            raise Exception("No County Provided")
+        dynamodb = DynamoDBHandler()
+        message = dynamodb.get_muni_data(county)
     except Exception as e:
         print(e)
         logger.error(e)
@@ -111,7 +157,7 @@ def get_muni_data(event, context):
     response = {
         "statusCode": 200,
         "body": json.dumps(body, indent=4, cls=ObjectEncoder),
-        "headers" : cors_headers()
+        "headers" : cors_headers(event, context)
     }
  
     logger.debug("End - get_rating_by_params()")
@@ -234,7 +280,7 @@ def get_county_indicator(geoID):
                    "gov_tax_strategy": 1,
                    "gov_valuation": 1
                    }
-        # logger.info(all_ind)
+        logger.info(all_ind)
         return all_ind
     except Exception as e:
         print(e)
@@ -263,6 +309,8 @@ def esg_rating(event, context):
             county_indicators = get_county_indicator(county)
             # logger.info(county_indicators)
             esg_county = ESGCounty(geoID=county,indicators=county_indicators)
+            
+         
             esg_counties.append(esg_county)
         
         argE =  ESGArgument(ESGType.ENVIRONMENTAL,esg_counties, env_indicators_weightages)

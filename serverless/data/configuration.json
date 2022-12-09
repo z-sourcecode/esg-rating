@@ -2,8 +2,8 @@
     {
         "ConfigID": "env_indicators_weightages",
         "value": {
-            "env_firezone": 0.5,
-            "env_drought": 0.5
+            "env_firezone": 0.8,
+            "env_drought": 0.2
         }
     },
     {
@@ -19,6 +19,31 @@
             "gov_tax_strategy": 0.5,
             "gov_valuation": 0.5
         }
+    },
+    {
+        "ConfigID": "cusips",
+        "value": [
+            {
+                "cusip": "048339VC6",
+                "name" : "Atlantic City, NJ G.O",
+                "geoIDs": ["34001"]
+            },
+            {
+                "cusip": "618024BQ5",
+                "name" : "Morris County, NJ G.O.",
+                "geoIDs": ["34027"]
+                },
+            {
+                "cusip": "783186TJ8",
+                "name" : "Rutgers State Univ",
+                "geoIDs": ["34023","34013","34007"]
+                },
+                {
+                    "cusip": "24918TAD9",
+                    "name" : "Denver Health & Hospital System",
+                    "geoIDs": ["08005"]
+                }
+        ]
     },
     {
         "ConfigID": "esg_weightages",

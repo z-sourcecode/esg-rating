@@ -46,7 +46,10 @@ class DynamoDBHandler:
             client = self.get_client()
             table = client.Table(table_name)
             response = table.query(KeyConditionExpression=Key('GeoID').eq(query))
-            return response
+            if response["Count"]>0:
+                return response["Items"][0]
+            else:
+                return {}
 
         except ClientError as err:
             print(err)
@@ -87,7 +90,7 @@ class DynamoDBHandler:
     
     def get_indicators(self, table_name, geoID):
         try:
-            print("Getting indicator from table {0} and county {1}".format(table_name, geoID))
+            # print("Getting indicator from table {0} and county {1}".format(table_name, geoID))
             client = self.get_client()
             table = client.Table(table_name)
             response = table.query(KeyConditionExpression=Key('GeoID').eq(geoID))
@@ -98,3 +101,26 @@ class DynamoDBHandler:
         except ClientError as err:
             print(err)
             raise
+    
+    def get_muni_data(self, geoID):
+        results = []
+        results.append("ESG Envinronmental Data:")
+        
+        drought_results = self.get_record("drought",geoID)
+        if "GeoID" in drought_results:   
+            drought_results["Indicator"]="drought"
+            results.append(drought_results)
+        fire_results = self.get_record("fire",geoID)
+        if "GeoID" in fire_results:   
+            fire_results["Indicator"]="fire"
+            results.append(fire_results)
+        results.append("ESG Social Data:")
+        demographics_results = self.get_record("demographics",geoID)
+        if "GeoID" in demographics_results:
+            demographics_results["Indicator"] = "demographics"
+            results.append(demographics_results)
+        race_results = self.get_record("race",geoID)
+        if "GeoID" in race_results:
+            race_results["Indicator"] = "race"
+            results.append(race_results)
+        return results

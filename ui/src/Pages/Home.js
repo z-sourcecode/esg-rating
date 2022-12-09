@@ -11,7 +11,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Button from 'react-bootstrap/Button';
 import get_counties from './counties'
 import ListGroup from 'react-bootstrap/ListGroup';
-import {esg_rating} from '../Common/api-data'
+import {esg_rating, get_rating_by_security} from '../Common/api-data'
 
 const HomePage = () => {
 
@@ -20,6 +20,7 @@ const HomePage = () => {
     const [selecteCountyTextOption, setSelectedCountyTextOption] = useState("Autauga");
     const [selectedCounties, setselectedCounties] = useState([]);
     const [esgResults, setEsgResults] = useState("");
+    const [cusipValue, setCusipValue] = useState("");
 
     const selectState = (e) =>{
         setSelectedStateOption(e.target.value)
@@ -45,6 +46,9 @@ const HomePage = () => {
             return items;
         }
     }
+    const handleChange = (e) => {
+        setCusipValue(e.target.value)
+    }
 
     const AddCounty = () => {
         // let item = <ListGroup.Item value={selecteCountyOption}>{selecteCountyTextOption}</ListGroup.Item>;
@@ -61,21 +65,37 @@ const HomePage = () => {
 
     const ClearCounty = () => {
         setselectedCounties([])
+        setEsgResults("")
     }
 
     const SubmitESGParams = ()=> {
         console.log(selectedCounties)
-        let geoIds = ""
+        let geoIds = []
         for (var i=0; i<selectedCounties.length; i++)
-            geoIds+=selectedCounties[i]["key"] + ",";
+            geoIds.push(selectedCounties[i]["key"])
 
-        geoIds=geoIds.replace(/,\s*$/, ""); //remove last comma
-        console.log(geoIds)
         let request = {
-            "counties": [geoIds]
+            "counties": geoIds
+        }
+        console.log(request)
+        esg_rating(request).then((result) => {
+            setEsgResults(result.message)
+          }).catch((error) => {
+            console.log("Error caught in update api")
+            console.log(error)
+            return false
+          })
+    }
+
+    const SubmitCusip = () => {
+        
+        console.log(cusipValue)
+        let request = {
+            "cusip":cusipValue
         }
 
-        esg_rating(request).then((result) => {
+        console.log(request)
+        get_rating_by_security(request).then((result) => {
             setEsgResults(result.message)
           }).catch((error) => {
             console.log("Error caught in update api")
@@ -181,9 +201,10 @@ const HomePage = () => {
                 <fieldset>
                 <Form.Group className="mb-3">
                     <Form.Label htmlFor="inputcusip">Type Cusip</Form.Label>
-                    <Form.Control  type="text" id="inputcusip"  aria-describedby="passwordHelpBlock"/>
+                    <Form.Control  type="text" id="inputcusip"  value={cusipValue} onChange={handleChange}  aria-describedby="passwordHelpBlock"/>
                 </Form.Group>
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit"  onClick={SubmitCusip}>Submit</Button>
+                    <Button variant="danger" id="clearCounty" onClick={ClearCounty} style={{marginRight:'10px'}}> Clear</Button>
                 </fieldset>
             </Col>
         </Row>
